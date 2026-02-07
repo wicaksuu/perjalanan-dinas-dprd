@@ -1,0 +1,31 @@
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+return new class extends Migration
+{
+    /**
+     * Run the migrations.
+     */
+    public function up(): void
+    {
+        Schema::create('pendamping_kegiatan', function (Blueprint $table) {
+            $table->id();
+            $table->foreignId('kegiatan_dinas_id')->constrained('kegiatan_dinas')->onDelete('cascade');
+            $table->foreignId('pendamping_id')->nullable()->constrained('pendampings')->onDelete('cascade');
+            $table->foreignId('pegawai_id')->nullable()->constrained('pegawais')->onDelete('cascade');
+            $table->enum('jenis', ['pendamping_wajib', 'pegawai_setwan']);
+            $table->timestamps();
+        });
+    }
+
+    /**
+     * Reverse the migrations.
+     */
+    public function down(): void
+    {
+        Schema::dropIfExists('pendamping_kegiatan');
+    }
+};
