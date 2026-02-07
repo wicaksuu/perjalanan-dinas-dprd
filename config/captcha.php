@@ -28,6 +28,7 @@ return [
         'bgImage' => true,
         'bgColor' => '#28faef',
         'contrast' => 0,
+        'sensitive' => false,
     ],
     'mini' => [
         'length' => 3,

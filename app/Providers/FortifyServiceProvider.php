@@ -42,21 +42,27 @@ class FortifyServiceProvider extends ServiceProvider
         Fortify::authenticateUsing(function (Request $request) {
             $user = User::where('email', $request->email)->first();
 
-            $validator = Validator::make($request->all(), [
-                'captcha' => 'required|captcha',
-            ], [
-                'captcha.captcha' => 'Kode CAPTCHA tidak valid.',
-                'captcha.required' => 'Wajib mengisi kode CAPTCHA.',
-            ]);
-
-            if ($validator->fails()) {
-                throw ValidationException::withMessages([
-                    'captcha' => [$validator->errors()->first('captcha')],
+            // Skip validation if captcha already validated in this request or if it's a re-entry call
+            // Fortify sometimes calls this multiple times in the same lifecycle
+            static $alreadyChecked = false;
+            
+            if (!$alreadyChecked) {
+                $isValid = captcha_check($request->captcha);
+                
+                \Log::debug('Captcha Validation', [
+                    'input' => $request->captcha,
+                    'is_valid' => $isValid
                 ]);
+
+                if (!$isValid) {
+                    throw ValidationException::withMessages([
+                        'captcha' => ['Kode CAPTCHA tidak valid.'],
+                    ]);
+                }
+                $alreadyChecked = true;
             }
 
-            if ($user &&
-                Hash::check($request->password, $user->password)) {
+            if ($user && Hash::check($request->password, $user->password)) {
                 return $user;
             }
         });
