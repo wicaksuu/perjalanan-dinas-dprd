@@ -12,17 +12,17 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('peserta_kegiatan', function (Blueprint $table) {
-            $table->decimal('uang_harian', 15, 2)->nullable()->default(0)->after('nominal');
-            $table->decimal('biaya_bbm', 15, 2)->nullable()->default(0)->after('uang_harian');
-            $table->decimal('biaya_penginapan', 15, 2)->nullable()->default(0)->after('biaya_bbm');
-            $table->decimal('biaya_transportasi', 15, 2)->nullable()->default(0)->after('biaya_penginapan');
+            $table->decimal('uang_harian', 15, 2)->nullable()->default(0);
+            $table->decimal('biaya_bbm', 15, 2)->nullable()->default(0);
+            $table->decimal('biaya_penginapan', 15, 2)->nullable()->default(0);
+            $table->decimal('biaya_transportasi', 15, 2)->nullable()->default(0);
         });
 
         Schema::table('pendamping_kegiatan', function (Blueprint $table) {
-            $table->decimal('uang_harian', 15, 2)->nullable()->default(0)->after('nominal');
-            $table->decimal('biaya_bbm', 15, 2)->nullable()->default(0)->after('uang_harian');
-            $table->decimal('biaya_penginapan', 15, 2)->nullable()->default(0)->after('biaya_bbm');
-            $table->decimal('biaya_transportasi', 15, 2)->nullable()->default(0)->after('biaya_penginapan');
+            $table->decimal('uang_harian', 15, 2)->nullable()->default(0);
+            $table->decimal('biaya_bbm', 15, 2)->nullable()->default(0);
+            $table->decimal('biaya_penginapan', 15, 2)->nullable()->default(0);
+            $table->decimal('biaya_transportasi', 15, 2)->nullable()->default(0);
         });
     }
 
