@@ -12,6 +12,9 @@ class PesertaKegiatan extends Model
     protected $fillable = [
         'kegiatan_dinas_id',
         'anggota_id',
+        'uang_harian',
+        'uang_representatif',
+        'nominal',
     ];
 
     public function kegiatanDinas(): BelongsTo

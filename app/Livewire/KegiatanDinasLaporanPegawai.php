@@ -113,7 +113,7 @@ class KegiatanDinasLaporanPegawai extends Component
             ->leftJoin('pegawais as p_via_pq', 'pendampings.pegawai_id', '=', 'p_via_pq.id')
             ->whereBetween('kegiatan_dinas.tanggal_mulai', [$this->startDate, $this->endDate])
             ->select(
-                DB::raw('COALESCE(p_direct.id, p_via_pq.id, "NP-" || pendampings.id) as v_id'),
+                DB::raw('COALESCE(p_direct.id, p_via_pq.id, CONCAT("NP-", pendampings.id)) as v_id'),
                 DB::raw('COALESCE(p_direct.nama, p_via_pq.nama, pendampings.nama, "Unknown") as v_nama'),
                 DB::raw('COALESCE(p_direct.jabatan, p_via_pq.jabatan, pendampings.jabatan, "Pendamping") as v_jabatan'),
                 DB::raw('count(kegiatan_dinas.id) as total_kegiatan'),
@@ -149,7 +149,7 @@ class KegiatanDinasLaporanPegawai extends Component
             ->join('kegiatan_dinas', 'pendamping_kegiatan.kegiatan_dinas_id', '=', 'kegiatan_dinas.id')
             ->whereBetween('kegiatan_dinas.tanggal_mulai', [$this->startDate, $this->endDate])
             ->select(
-                DB::raw("strftime('%Y-%m', kegiatan_dinas.tanggal_mulai) as month"),
+                DB::raw("DATE_FORMAT(kegiatan_dinas.tanggal_mulai, '%Y-%m') as month"),
                 DB::raw("SUM(pendamping_kegiatan.nominal) as total_nominal")
             )
             ->groupBy('month')

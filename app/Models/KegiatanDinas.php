@@ -78,7 +78,7 @@ class KegiatanDinas extends Model
             $pesertaSum = $this->pesertaKegiatans->sum('nominal');
             $pendampingSum = $this->pendampingKegiatans->sum('nominal');
             
-            return $pesertaSum + $pendampingSum + $this->biaya_bbm + $this->biaya_penginapan + $this->biaya_transportasi;
+            return (float) $pesertaSum + (float) $pendampingSum + (float) $this->biaya_bbm + (float) $this->biaya_penginapan + (float) $this->biaya_transportasi;
         });
     }
 

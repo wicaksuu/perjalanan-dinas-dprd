@@ -123,4 +123,6 @@ return [
         'store' => env('APP_MAINTENANCE_STORE', 'database'),
     ],
 
+    'unlock_past_travel_edit' => env('UNLOCK_PAST_TRAVEL_EDIT', false),
+
 ];

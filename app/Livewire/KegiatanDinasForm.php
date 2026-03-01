@@ -32,9 +32,8 @@ class KegiatanDinasForm extends Component
     public $pendamping_ids = [];
     public $pegawai_ids = [];
 
-    // Individual Nominals
-    // Individual Daily Rates
-    public $anggota_budgets = []; // [id => ['uang_harian' => 0]]
+    // Individual Daily Rates & Representative Money
+    public $anggota_budgets = []; // [id => ['uang_harian' => 0, 'uang_representatif' => 0]]
     public $pendamping_budgets = [];
     public $pegawai_budgets = [];
     
@@ -84,6 +83,7 @@ class KegiatanDinasForm extends Component
                     $this->anggota_ids[] = (string) $anggota->id;
                     $this->anggota_budgets[$anggota->id] = [
                         'uang_harian' => $anggota->pivot->uang_harian,
+                        'uang_representatif' => $anggota->pivot->uang_representatif,
                     ];
                 }
                 
@@ -92,6 +92,7 @@ class KegiatanDinasForm extends Component
                         $this->pendamping_ids[] = (string) $pk->pendamping_id;
                         $this->pendamping_budgets[$pk->pendamping_id] = [
                             'uang_harian' => $pk->uang_harian,
+                            'uang_representatif' => $pk->uang_representatif,
                         ];
                         
                         // Populate Pimpinan Mapping
@@ -102,10 +103,11 @@ class KegiatanDinasForm extends Component
                         $this->pegawai_ids[] = (string) $pk->pegawai_id;
                         $this->pegawai_budgets[$pk->pegawai_id] = [
                             'uang_harian' => $pk->uang_harian,
+                            'uang_representatif' => $pk->uang_representatif,
                         ];
                     }
                 }
-                if ($kegiatan->is_ended) {
+                if ($kegiatan->is_ended && !config('app.unlock_past_travel_edit', false)) {
                     $this->isReadOnly = true;
                 }
             }
@@ -114,9 +116,14 @@ class KegiatanDinasForm extends Component
 
     public function nextStep()
     {
-        $this->validateStep();
-        $this->currentStep++;
-        $this->dispatch('scrollTop');
+        try {
+            $this->validateStep();
+            $this->currentStep++;
+            $this->dispatch('scrollTop');
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            $this->dispatch('toast', type: 'error', message: 'Silakan lengkapi formulir yang wajib diisi.');
+            throw $e;
+        }
     }
 
     public function previousStep()
@@ -129,7 +136,7 @@ class KegiatanDinasForm extends Component
     {
         if ($this->currentStep == 1) {
             $this->validate([
-                'komisi_id' => 'required|exists:komisis,id',
+                'komisi_id' => 'nullable|exists:komisis,id',
                 'jenis_dinas' => 'required|in:dalam,luar',
                 'nama_kegiatan' => 'required|string|max:255',
                 'lokasi' => 'required|string|max:255',
@@ -138,23 +145,34 @@ class KegiatanDinasForm extends Component
             ]);
         } elseif ($this->currentStep == 2) {
             $this->validate([
-                'anggota_ids' => 'required|array|min:1',
+                'anggota_ids' => 'nullable|array',
                 'anggota_ids.*' => 'exists:anggotas,id',
-                'pendamping_ids' => 'required|array|min:1',
+                'pendamping_ids' => 'nullable|array',
                 'pendamping_ids.*' => 'exists:pendampings,id',
-                'pegawai_ids' => 'required|array|min:1',
+                'pegawai_ids' => 'nullable|array',
                 'pegawai_ids.*' => 'exists:pegawais,id',
                 'anggota_budgets.*.uang_harian' => 'nullable|numeric|min:0',
+                'anggota_budgets.*.uang_representatif' => 'nullable|numeric|min:0',
                 'pendamping_budgets.*.uang_harian' => 'nullable|numeric|min:0',
+                'pendamping_budgets.*.uang_representatif' => 'nullable|numeric|min:0',
                 'pegawai_budgets.*.uang_harian' => 'nullable|numeric|min:0',
+                'pegawai_budgets.*.uang_representatif' => 'nullable|numeric|min:0',
             ]);
+
+            // Manual check: At least one participant must be selected
+            if (empty($this->anggota_ids) && empty($this->pendamping_ids) && empty($this->pegawai_ids)) {
+                $this->dispatch('toast', type: 'error', message: 'Pilih minimal satu orang peserta (Anggota, Pendamping, atau Staf).');
+                throw \Illuminate\Validation\ValidationException::withMessages([
+                    'anggota_ids' => 'Pilih minimal satu orang peserta.',
+                ]);
+            }
         }
     }
 
     protected function rules() 
     {
         return [
-            'komisi_id' => 'required|exists:komisis,id',
+            'komisi_id' => 'nullable|exists:komisis,id',
             'jenis_dinas' => 'required|in:dalam,luar',
             'nama_kegiatan' => 'required|string|max:255',
             'lokasi' => 'required|string|max:255',
@@ -164,7 +182,7 @@ class KegiatanDinasForm extends Component
             'biaya_bbm' => 'nullable|numeric|min:0',
             'biaya_penginapan' => 'nullable|numeric|min:0',
             'biaya_transportasi' => 'nullable|numeric|min:0',
-            'anggota_ids' => 'required|array|min:1',
+            'anggota_ids' => 'nullable|array',
             'anggota_ids.*' => 'exists:anggotas,id',
             'pendamping_ids' => 'required|array|min:1',
             'pendamping_ids.*' => 'exists:pendampings,id',
@@ -172,8 +190,11 @@ class KegiatanDinasForm extends Component
             'pegawai_ids.*' => 'exists:pegawais,id',
             
             'anggota_budgets.*.uang_harian' => 'nullable|numeric|min:0',
+            'anggota_budgets.*.uang_representatif' => 'nullable|numeric|min:0',
             'pendamping_budgets.*.uang_harian' => 'nullable|numeric|min:0',
+            'pendamping_budgets.*.uang_representatif' => 'nullable|numeric|min:0',
             'pegawai_budgets.*.uang_harian' => 'nullable|numeric|min:0',
+            'pegawai_budgets.*.uang_representatif' => 'nullable|numeric|min:0',
         ];
     }
 
@@ -248,10 +269,12 @@ class KegiatanDinasForm extends Component
             $syncData = [];
             foreach ($this->anggota_ids as $id) {
                 $harian = $this->anggota_budgets[$id]['uang_harian'] ?? 0;
-                $total = $harian * $durasi;
+                $representatif = $this->anggota_budgets[$id]['uang_representatif'] ?? 0;
+                $total = ($harian * $durasi) + $representatif;
 
                 $syncData[$id] = [
                     'uang_harian' => $harian,
+                    'uang_representatif' => $representatif,
                     'nominal' => $total
                 ];
             }
@@ -262,7 +285,8 @@ class KegiatanDinasForm extends Component
             
             foreach ($this->pendamping_ids as $pendampingId) {
                 $harian = $this->pendamping_budgets[$pendampingId]['uang_harian'] ?? 0;
-                $total = $harian * $durasi;
+                $representatif = $this->pendamping_budgets[$pendampingId]['uang_representatif'] ?? 0;
+                $total = ($harian * $durasi) + $representatif;
 
                 // Find if this pendamping belongs to a specific Anggota (Pimpinan)
                 $relatedAnggotaId = null;
@@ -278,6 +302,7 @@ class KegiatanDinasForm extends Component
                     'pendamping_id' => $pendampingId,
                     'jenis' => 'pendamping_wajib',
                     'uang_harian' => $harian,
+                    'uang_representatif' => $representatif,
                     'nominal' => $total,
                     'related_anggota_id' => $relatedAnggotaId,
                 ]);
@@ -285,13 +310,15 @@ class KegiatanDinasForm extends Component
 
             foreach ($this->pegawai_ids as $pegawaiId) {
                 $harian = $this->pegawai_budgets[$pegawaiId]['uang_harian'] ?? 0;
-                $total = $harian * $durasi;
+                $representatif = $this->pegawai_budgets[$pegawaiId]['uang_representatif'] ?? 0;
+                $total = ($harian * $durasi) + $representatif;
 
                 PendampingKegiatan::create([
                     'kegiatan_dinas_id' => $kegiatan->id,
                     'pegawai_id' => $pegawaiId,
                     'jenis' => 'pegawai_setwan',
                     'uang_harian' => $harian,
+                    'uang_representatif' => $representatif,
                     'nominal' => $total,
                 ]);
             }
@@ -303,6 +330,7 @@ class KegiatanDinasForm extends Component
 
         } catch (\Exception $e) {
             DB::rollBack();
+            $this->dispatch('toast', type: 'error', message: 'Terjadi kesalahan: ' . $e->getMessage());
             session()->flash('error', 'Terjadi kesalahan: ' . $e->getMessage());
         }
     }

@@ -43,6 +43,7 @@ class AnggotaIndex extends Component
 
         if ($anggota) {
             $anggota->delete();
+            $this->dispatch('toast', type: 'success', message: 'Anggota berhasil dihapus.');
             session()->flash('success', 'Anggota berhasil dihapus.');
         }
 

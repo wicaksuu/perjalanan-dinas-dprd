@@ -147,7 +147,7 @@ class KegiatanDinasLaporanPimpinan extends Component
             ->whereBetween('tanggal_mulai', [$this->startDate, $this->endDate])
             ->where('komisi_id', $this->pimpinanKomisiId)
             ->select(
-                DB::raw("strftime('%Y-%m', tanggal_mulai) as month"),
+                DB::raw("DATE_FORMAT(tanggal_mulai, '%Y-%m') as month"),
                 DB::raw("SUM(biaya_bbm + biaya_penginapan + biaya_transportasi) as global_cost"),
                 DB::raw("SUM(durasi_hari) as total_days")
             )
@@ -160,7 +160,7 @@ class KegiatanDinasLaporanPimpinan extends Component
             ->whereBetween('kegiatan_dinas.tanggal_mulai', [$this->startDate, $this->endDate])
             ->where('kegiatan_dinas.komisi_id', $this->pimpinanKomisiId)
             ->select(
-                DB::raw("strftime('%Y-%m', kegiatan_dinas.tanggal_mulai) as month"),
+                DB::raw("DATE_FORMAT(kegiatan_dinas.tanggal_mulai, '%Y-%m') as month"),
                 DB::raw("SUM(peserta_kegiatan.nominal) as total_nominal")
             )
             ->groupBy('month')
@@ -171,7 +171,7 @@ class KegiatanDinasLaporanPimpinan extends Component
             ->whereBetween('kegiatan_dinas.tanggal_mulai', [$this->startDate, $this->endDate])
             ->where('kegiatan_dinas.komisi_id', $this->pimpinanKomisiId)
             ->select(
-                DB::raw("strftime('%Y-%m', kegiatan_dinas.tanggal_mulai) as month"),
+                DB::raw("DATE_FORMAT(kegiatan_dinas.tanggal_mulai, '%Y-%m') as month"),
                 DB::raw("SUM(pendamping_kegiatan.nominal) as total_nominal")
             )
             ->groupBy('month')

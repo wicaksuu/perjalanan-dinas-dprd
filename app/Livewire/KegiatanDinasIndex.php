@@ -80,9 +80,16 @@ class KegiatanDinasIndex extends Component
 
         if ($kegiatan) {
             try {
-                $kegiatan->delete();
-                session()->flash('success', 'Kegiatan dinas berhasil dihapus.');
+                if ($kegiatan->anggotas()->exists() || $kegiatan->pendampingKegiatans()->exists()) {
+                    $this->dispatch('toast', type: 'error', message: 'Kegiatan tidak bisa dihapus karena sudah memiliki data peserta/pendamping.');
+                    session()->flash('error', 'Kegiatan tidak bisa dihapus karena sudah memiliki data peserta/pendamping.');
+                } else {
+                    $kegiatan->delete();
+                    $this->dispatch('toast', type: 'success', message: 'Kegiatan dinas berhasil dihapus.');
+                    session()->flash('success', 'Kegiatan dinas berhasil dihapus.');
+                }
             } catch (\Exception $e) {
+                $this->dispatch('toast', type: 'error', message: 'Terjadi kesalahan: ' . $e->getMessage());
                 session()->flash('error', 'Terjadi kesalahan: ' . $e->getMessage());
             }
         }

@@ -17,6 +17,7 @@ class PendampingKegiatan extends Model
         'jenis',
         'nominal',
         'uang_harian',
+        'uang_representatif',
     ];
 
     public function kegiatanDinas(): BelongsTo

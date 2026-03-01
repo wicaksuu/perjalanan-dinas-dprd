@@ -43,6 +43,7 @@ class PendampingIndex extends Component
 
         if ($pendamping) {
             $pendamping->delete();
+            $this->dispatch('toast', type: 'success', message: 'Pendamping berhasil dihapus.');
             session()->flash('success', 'Pendamping berhasil dihapus.');
         }
 

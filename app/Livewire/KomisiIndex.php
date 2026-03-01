@@ -59,9 +59,11 @@ class KomisiIndex extends Component
 
         if ($komisi) {
             if ($komisi->anggotas()->exists() || $komisi->kegiatanDinas()->exists()) {
-                session()->flash('error', 'Komisi tidak dapat dihapus karena masih memiliki anggota atau kegiatan terkait.');
+                $this->dispatch('toast', type: 'error', message: 'Komisi tidak bisa dihapus karena masih memiliki data anggota atau kegiatan.');
+                session()->flash('error', 'Komisi tidak bisa dihapus karena masih memiliki data anggota atau kegiatan.');
             } else {
                 $komisi->delete();
+                $this->dispatch('toast', type: 'success', message: 'Komisi berhasil dihapus.');
                 session()->flash('success', 'Komisi berhasil dihapus.');
             }
         }

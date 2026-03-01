@@ -37,6 +37,7 @@ class PegawaiIndex extends Component
 
         if ($pegawai) {
             $pegawai->delete();
+            $this->dispatch('toast', type: 'success', message: 'Staf berhasil dihapus.');
             session()->flash('success', 'Pegawai berhasil dihapus.');
         }
 

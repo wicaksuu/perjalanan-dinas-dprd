@@ -175,7 +175,7 @@
                                 <div class="w-8 h-8 rounded-lg bg-indigo-500/10 flex items-center justify-center text-indigo-600">
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
                                 </div>
-                                Peserta Anggota Dewan
+                                Peserta Anggota Dewan <span class="text-[9px] lowercase font-medium text-slate-400 ml-2 italic">(Opsional - Kosongkan jika hanya Setwan yang berangkat)</span>
                             </h3>
 
                             @if($komisi_id)
@@ -213,19 +213,29 @@
 
                                         @if(in_array($anggota->id, $anggota_ids))
                                             <div class="mt-2 pt-4 border-t border-indigo-100/50" onclick="event.preventDefault()">
-                                                <div class="flex items-end justify-between gap-4">
-                                                    <div class="flex-1 space-y-2">
+                                                <div class="grid grid-cols-2 gap-4">
+                                                    <div class="space-y-2">
                                                         <label class="block text-[8px] font-black text-indigo-400 uppercase tracking-widest pl-1">Uang Harian / Hari</label>
                                                         <div class="relative">
                                                             <div class="absolute left-3 top-1/2 -translate-y-1/2 text-[10px] font-black text-slate-400">Rp</div>
                                                             <input type="number" wire:model.live="anggota_budgets.{{ $anggota->id }}.uang_harian" {{ $isReadOnly ? 'disabled' : '' }} class="w-full pl-9 pr-3 py-2.5 bg-white border-2 border-indigo-100 rounded-xl text-xs font-bold text-indigo-600 focus:ring-2 focus:ring-indigo-500/20 transition-all font-mono disabled:opacity-60 disabled:cursor-not-allowed" placeholder="0">
                                                         </div>
                                                     </div>
+                                                    <div class="space-y-2">
+                                                        <label class="block text-[8px] font-black text-indigo-400 uppercase tracking-widest pl-1">Uang Representatif</label>
+                                                        <div class="relative">
+                                                            <div class="absolute left-3 top-1/2 -translate-y-1/2 text-[10px] font-black text-slate-400">Rp</div>
+                                                            <input type="number" wire:model.live="anggota_budgets.{{ $anggota->id }}.uang_representatif" {{ $isReadOnly ? 'disabled' : '' }} class="w-full pl-9 pr-3 py-2.5 bg-white border-2 border-indigo-100 rounded-xl text-xs font-bold text-indigo-600 focus:ring-2 focus:ring-indigo-500/20 transition-all font-mono disabled:opacity-60 disabled:cursor-not-allowed" placeholder="0">
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="mt-4 flex justify-end">
                                                     <div class="flex-shrink-0 text-right">
                                                         @php
                                                             $h = $anggota_budgets[$anggota->id]['uang_harian'] ?? 0;
+                                                            $r = $anggota_budgets[$anggota->id]['uang_representatif'] ?? 0;
                                                             $dur = (int) Carbon\Carbon::parse($tanggal_mulai)->diffInDays(Carbon\Carbon::parse($tanggal_selesai)) + 1;
-                                                            $subTotal = $h * $dur;
+                                                            $subTotal = ($h * $dur) + $r;
                                                         @endphp
                                                         <span class="block text-[8px] font-black text-slate-400 uppercase tracking-widest mb-1">Subtotal</span>
                                                         <div class="bg-indigo-600 text-white px-3 py-2 rounded-xl text-[11px] font-black shadow-lg shadow-indigo-200">
@@ -371,13 +381,19 @@
                                                          x-transition
                                                          class="mt-3 pt-3 border-t border-rose-100/50 relative z-20" 
                                                          @click.stop>
-                                                        <div class="flex items-end justify-between gap-3">
-                                                            <div class="flex-1 space-y-1">
+                                                        <div class="grid grid-cols-2 gap-2">
+                                                            <div class="space-y-1">
                                                                 <label class="block text-[6px] font-black text-rose-500 uppercase tracking-widest pl-1">Harian</label>
                                                                 <input type="number" wire:model.live="pendamping_budgets.{{ $pendamping->id }}.uang_harian" {{ $isReadOnly ? 'disabled' : '' }} class="w-full px-2 py-1 bg-white border border-rose-100 rounded text-[9px] font-bold text-rose-600 font-mono disabled:opacity-60 disabled:cursor-not-allowed" placeholder="0">
                                                             </div>
+                                                            <div class="space-y-1">
+                                                                <label class="block text-[6px] font-black text-rose-500 uppercase tracking-widest pl-1">Represen</label>
+                                                                <input type="number" wire:model.live="pendamping_budgets.{{ $pendamping->id }}.uang_representatif" {{ $isReadOnly ? 'disabled' : '' }} class="w-full px-2 py-1 bg-white border border-rose-100 rounded text-[9px] font-bold text-rose-600 font-mono disabled:opacity-60 disabled:cursor-not-allowed" placeholder="0">
+                                                            </div>
+                                                        </div>
+                                                        <div class="mt-2 flex justify-end">
                                                             <div class="bg-rose-500 text-white px-2 py-1 rounded text-[7px] font-black shadow-lg shadow-rose-200/50">
-                                                                Σ {{ number_format(($pendamping_budgets[$pendamping->id]['uang_harian'] ?? 0) * $dur, 0, ',', '.') }}
+                                                                Σ {{ number_format((($pendamping_budgets[$pendamping->id]['uang_harian'] ?? 0) * $dur) + ($pendamping_budgets[$pendamping->id]['uang_representatif'] ?? 0), 0, ',', '.') }}
                                                             </div>
                                                         </div>
                                                     </div>
@@ -442,13 +458,19 @@
                                             </div>
                                             @if(in_array($pendamping->id, $pendamping_ids))
                                                 <div class="mt-3 pt-3 border-t border-emerald-100/50" onclick="event.preventDefault()">
-                                                    <div class="flex items-end justify-between gap-3">
-                                                        <div class="flex-1 space-y-1">
+                                                    <div class="grid grid-cols-2 gap-3">
+                                                        <div class="space-y-1">
                                                             <label class="block text-[7px] font-black text-emerald-400 uppercase tracking-widest pl-1">Harian</label>
                                                             <input type="number" wire:model.live="pendamping_budgets.{{ $pendamping->id }}.uang_harian" {{ $isReadOnly ? 'disabled' : '' }} class="w-full px-3 py-1.5 bg-white border border-emerald-100 rounded-lg text-[10px] font-bold text-emerald-600 font-mono disabled:opacity-60 disabled:cursor-not-allowed" placeholder="0">
                                                         </div>
+                                                        <div class="space-y-1">
+                                                            <label class="block text-[7px] font-black text-emerald-400 uppercase tracking-widest pl-1">Representatif</label>
+                                                            <input type="number" wire:model.live="pendamping_budgets.{{ $pendamping->id }}.uang_representatif" {{ $isReadOnly ? 'disabled' : '' }} class="w-full px-3 py-1.5 bg-white border border-emerald-100 rounded-lg text-[10px] font-bold text-emerald-600 font-mono disabled:opacity-60 disabled:cursor-not-allowed" placeholder="0">
+                                                        </div>
+                                                    </div>
+                                                    <div class="mt-2 flex justify-end">
                                                         <div class="bg-emerald-500 text-white px-2 py-1.5 rounded-lg text-[8px] font-black shadow-lg shadow-emerald-200/50">
-                                                            Σ {{ number_format(($pendamping_budgets[$pendamping->id]['uang_harian'] ?? 0) * $dur, 0, ',', '.') }}
+                                                            Σ {{ number_format((($pendamping_budgets[$pendamping->id]['uang_harian'] ?? 0) * $dur) + ($pendamping_budgets[$pendamping->id]['uang_representatif'] ?? 0), 0, ',', '.') }}
                                                         </div>
                                                     </div>
                                                 </div>
@@ -497,13 +519,19 @@
                                         </div>
                                         @if(in_array($pegawai->id, $pegawai_ids))
                                             <div class="mt-3 pt-3 border-t border-amber-100/50" onclick="event.preventDefault()">
-                                                <div class="flex items-end justify-between gap-3">
-                                                    <div class="flex-1 space-y-1">
+                                                <div class="grid grid-cols-2 gap-3">
+                                                    <div class="space-y-1">
                                                         <label class="block text-[6px] font-black text-amber-500 uppercase tracking-widest pl-1">Harian</label>
                                                         <input type="number" wire:model.live="pegawai_budgets.{{ $pegawai->id }}.uang_harian" {{ $isReadOnly ? 'disabled' : '' }} class="w-full px-2 py-1 bg-white border border-amber-100 rounded text-[9px] font-bold text-amber-600 font-mono disabled:opacity-60 disabled:cursor-not-allowed" placeholder="0">
                                                     </div>
+                                                    <div class="space-y-1">
+                                                        <label class="block text-[6px] font-black text-amber-500 uppercase tracking-widest pl-1">Representatif</label>
+                                                        <input type="number" wire:model.live="pegawai_budgets.{{ $pegawai->id }}.uang_representatif" {{ $isReadOnly ? 'disabled' : '' }} class="w-full px-2 py-1 bg-white border border-amber-100 rounded text-[9px] font-bold text-amber-600 font-mono disabled:opacity-60 disabled:cursor-not-allowed" placeholder="0">
+                                                    </div>
+                                                </div>
+                                                <div class="mt-2 flex justify-end">
                                                     <div class="bg-amber-500 text-white px-2 py-1 rounded text-[7px] font-black shadow-lg shadow-amber-200/50">
-                                                        Σ {{ number_format(($pegawai_budgets[$pegawai->id]['uang_harian'] ?? 0) * $dur, 0, ',', '.') }}
+                                                        Σ {{ number_format((($pegawai_budgets[$pegawai->id]['uang_harian'] ?? 0) * $dur) + ($pegawai_budgets[$pegawai->id]['uang_representatif'] ?? 0), 0, ',', '.') }}
                                                     </div>
                                                 </div>
                                             </div>
@@ -584,9 +612,9 @@
                                     @php
                                         $dur = (int) Carbon\Carbon::parse($tanggal_mulai)->diffInDays(Carbon\Carbon::parse($tanggal_selesai)) + 1;
                                         $total = (float) $biaya_bbm + (float) $biaya_penginapan + (float) $biaya_transportasi;
-                                        foreach($anggota_ids as $id) $total += (($anggota_budgets[$id]['uang_harian'] ?? 0) * $dur);
-                                        foreach($pendamping_ids as $id) $total += (($pendamping_budgets[$id]['uang_harian'] ?? 0) * $dur);
-                                        foreach($pegawai_ids as $id) $total += (($pegawai_budgets[$id]['uang_harian'] ?? 0) * $dur);
+                                        foreach($anggota_ids as $id) $total += ((($anggota_budgets[$id]['uang_harian'] ?? 0) * $dur) + ($anggota_budgets[$id]['uang_representatif'] ?? 0));
+                                        foreach($pendamping_ids as $id) $total += ((($pendamping_budgets[$id]['uang_harian'] ?? 0) * $dur) + ($pendamping_budgets[$id]['uang_representatif'] ?? 0));
+                                        foreach($pegawai_ids as $id) $total += ((($pegawai_budgets[$id]['uang_harian'] ?? 0) * $dur) + ($pegawai_budgets[$id]['uang_representatif'] ?? 0));
                                     @endphp
                                     <div class="pt-4 mt-6 border-t border-white/5">
                                         <span class="text-[10px] font-black text-indigo-400 uppercase tracking-[0.2em] block mb-2">Total Estimasi Anggaran</span>
