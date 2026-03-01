@@ -4,6 +4,11 @@
             <x-authentication-card-logo />
         </x-slot>
 
+        <div class="mb-8 text-center">
+            <h2 class="text-2xl font-black text-slate-800 tracking-tight mb-2">Login Aplikasi</h2>
+            <p class="text-sm text-slate-500">Silakan masuk menggunakan akun Single Sign-On (SSO) resmi Kabupaten Madiun untuk mengakses dashboard.</p>
+        </div>
+
         <x-validation-errors class="mb-4" />
 
         @session('status')
@@ -12,52 +17,20 @@
             </div>
         @endsession
 
-        <form method="POST" action="{{ route('login') }}">
-            @csrf
-
-            <div>
-                <x-label for="email" value="{{ __('Email') }}" />
-                <x-input id="email" class="block mt-1 w-full" type="email" name="email" :value="old('email')" required autofocus autocomplete="username" />
-            </div>
-
-            <div class="mt-4">
-                <x-label for="password" value="{{ __('Password') }}" />
-                <x-input id="password" class="block mt-1 w-full" type="password" name="password" required autocomplete="current-password" />
-            </div>
-
-            <div class="mt-4 flex flex-col space-y-2">
-                <x-label for="captcha" value="{{ __('CAPTCHA') }}" />
-                <div class="flex items-center space-x-2">
-                    <div class="rounded-lg overflow-hidden border border-gray-300">
-                        {!! captcha_img('flat') !!}
-                    </div>
-                    <button type="button" class="p-2 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors" onclick="document.querySelector('.rounded-lg img').src = '/captcha/flat?' + Math.random()">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-                        </svg>
-                    </button>
+        <div class="space-y-4">
+            <a href="{{ route('sso.redirect') }}" class="w-full flex items-center justify-center gap-4 px-6 py-4 bg-indigo-600 border-2 border-indigo-600 rounded-2xl text-white font-black text-lg hover:bg-white hover:text-indigo-600 hover:shadow-xl hover:shadow-indigo-500/20 transition-all duration-300 group">
+                <div class="w-8 h-8 rounded-xl bg-white/20 flex items-center justify-center group-hover:bg-indigo-600 group-hover:text-white transition-colors">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"></path></svg>
                 </div>
-                <x-input id="captcha" class="block mt-1 w-full" type="text" name="captcha" required placeholder="Masukkan kode di atas" />
-            </div>
+                <span>Login dengan SSO Madiun Kab</span>
+            </a>
 
-            <div class="block mt-4">
-                <label for="remember_me" class="flex items-center">
-                    <x-checkbox id="remember_me" name="remember" />
-                    <span class="ms-2 text-sm text-gray-600">{{ __('Remember me') }}</span>
-                </label>
+            <div class="pt-6 border-t border-slate-100 mt-8 text-center">
+                <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest leading-relaxed">
+                    © {{ date('Y') }} DPRD KABUPATEN MADIUN<br>
+                    SISTEM INFORMASI PERJALANAN DINAS
+                </p>
             </div>
-
-            <div class="flex items-center justify-end mt-4">
-                @if (Route::has('password.request'))
-                    <a class="underline text-sm text-gray-600 hover:text-gray-900 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500" href="{{ route('password.request') }}">
-                        {{ __('Forgot your password?') }}
-                    </a>
-                @endif
-
-                <x-button class="ms-4">
-                    {{ __('Log in') }}
-                </x-button>
-            </div>
-        </form>
+        </div>
     </x-authentication-card>
 </x-guest-layout>

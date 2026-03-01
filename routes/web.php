@@ -8,9 +8,15 @@ use App\Http\Controllers\PegawaiController;
 use App\Http\Controllers\PendampingController;
 use App\Http\Controllers\KegiatanDinasController;
 
+use App\Http\Controllers\Auth\SSOController;
+
 Route::get('/', function () {
     return view('welcome');
 });
+
+// SSO Routes
+Route::get('/auth/redirect', [SSOController::class, 'redirect'])->name('sso.redirect');
+Route::get('/auth/callback', [SSOController::class, 'callback'])->name('sso.callback');
 
 Route::middleware([
     'auth:sanctum',
