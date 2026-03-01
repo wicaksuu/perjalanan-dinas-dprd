@@ -91,6 +91,37 @@
             </template>
         </div>
 
+        <!-- Floating Loading Spinner (Bottom Right) -->
+        <div wire:loading class="fixed bottom-6 right-6 z-[9999] pointer-events-none transition-all duration-300">
+            <div class="bg-white/80 backdrop-blur-xl border border-white p-3 rounded-2xl shadow-2xl flex items-center gap-3 animate-fade-in ring-1 ring-slate-900/5">
+                <div class="relative w-6 h-6">
+                    <svg class="w-6 h-6 text-indigo-600 animate-spin" fill="none" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                </div>
+                <span class="text-[10px] font-black uppercase tracking-widest text-slate-500">Memproses...</span>
+            </div>
+        </div>
+
+        <!-- Global Loading Overlay (Delayed) -->
+        <div wire:loading.delay.longest class="fixed inset-0 z-[10000] flex items-center justify-center pointer-events-auto">
+            <div class="absolute inset-0 bg-slate-900/40 backdrop-blur-sm transition-opacity duration-300"></div>
+            <div class="relative bg-white/90 backdrop-blur-xl border border-white p-8 rounded-[3rem] shadow-2xl flex flex-col items-center gap-6 animate-fade-in">
+                <div class="relative w-16 h-16">
+                    <div class="absolute inset-0 rounded-2xl bg-indigo-500/10 animate-pulse"></div>
+                    <svg class="absolute inset-0 w-16 h-16 text-indigo-600 animate-spin" fill="none" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                </div>
+                <div class="text-center space-y-1">
+                    <h5 class="text-[10px] font-black uppercase tracking-[0.2em] text-indigo-600">Sedang Memproses</h5>
+                    <p class="text-xs font-bold text-slate-500">Mohon tunggu sebentar...</p>
+                </div>
+            </div>
+        </div>
+
         <x-banner />
 
         <!-- Check for flash sessions on load -->

@@ -437,6 +437,63 @@ class KegiatanDinasForm extends Component
         ])->layout('layouts.app');
     }
 
+    public function toggleAnggota($id)
+    {
+        $id = (string) $id;
+        $this->anggota_ids = is_array($this->anggota_ids) ? $this->anggota_ids : [];
+        if (in_array($id, $this->anggota_ids)) {
+            $this->anggota_ids = array_diff($this->anggota_ids, [$id]);
+        } else {
+            $this->anggota_ids[] = $id;
+        }
+    }
+
+    public function togglePendamping($id)
+    {
+        $id = (string) $id;
+        $this->pendamping_ids = is_array($this->pendamping_ids) ? $this->pendamping_ids : [];
+        if (in_array($id, $this->pendamping_ids)) {
+            $this->pendamping_ids = array_diff($this->pendamping_ids, [$id]);
+        } else {
+            $this->pendamping_ids[] = $id;
+        }
+    }
+
+    public function togglePegawai($id)
+    {
+        $id = (string) $id;
+        $this->pegawai_ids = is_array($this->pegawai_ids) ? $this->pegawai_ids : [];
+        if (in_array($id, $this->pegawai_ids)) {
+            $this->pegawai_ids = array_diff($this->pegawai_ids, [$id]);
+        } else {
+            $this->pegawai_ids[] = $id;
+        }
+    }
+
+    public function togglePimpinanPendamping($anggotaId, $pendampingId)
+    {
+        $anggotaId = (string) $anggotaId;
+        $pendampingId = (string) $pendampingId;
+
+        if (!isset($this->pimpinan_pendampings[$anggotaId])) {
+            $this->pimpinan_pendampings[$anggotaId] = [];
+        }
+
+        // Handle possible object serialization
+        if (!is_array($this->pimpinan_pendampings[$anggotaId])) {
+            $this->pimpinan_pendampings[$anggotaId] = (array) $this->pimpinan_pendampings[$anggotaId];
+        }
+
+        $index = array_search($pendampingId, $this->pimpinan_pendampings[$anggotaId]);
+
+        if ($index === false) {
+            $this->pimpinan_pendampings[$anggotaId][] = $pendampingId;
+        } else {
+            unset($this->pimpinan_pendampings[$anggotaId][$index]);
+            $this->pimpinan_pendampings[$anggotaId] = array_values($this->pimpinan_pendampings[$anggotaId]);
+        }
+    }
+
     private function calculateDurasi($start, $end)
     {
         if (!$start || !$end) return 0;

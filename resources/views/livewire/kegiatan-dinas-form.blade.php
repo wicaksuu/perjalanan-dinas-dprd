@@ -202,11 +202,19 @@
                                     <label class="group/item flex flex-col p-6 {{ in_array($anggota->id, $anggota_ids) ? 'bg-indigo-50/50 border-indigo-200 ring-2 ring-indigo-500/10' : 'bg-slate-50/50 border-transparent hover:bg-white hover:border-indigo-100 hover:shadow-xl hover:shadow-indigo-500/5' }} rounded-[2rem] border transition-all duration-300 cursor-pointer">
                                         <div class="flex items-center mb-4">
                                             <div class="relative flex items-center justify-center w-6 h-6 mr-4">
-                                                <input type="checkbox" wire:model.live="anggota_ids" value="{{ $anggota->id }}" {{ $isReadOnly ? 'disabled' : '' }} class="peer relative appearance-none w-6 h-6 border-2 border-slate-200 rounded-lg checked:bg-indigo-600 checked:border-indigo-600 focus:ring-0 transition-all cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed">
+                                                <input type="checkbox" wire:click="toggleAnggota('{{ $anggota->id }}')" value="{{ $anggota->id }}" {{ in_array($anggota->id, $anggota_ids) ? 'checked' : '' }} {{ $isReadOnly ? 'disabled' : '' }} class="peer relative appearance-none w-6 h-6 border-2 border-slate-200 rounded-lg checked:bg-indigo-600 checked:border-indigo-600 focus:ring-0 transition-all cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed">
                                                 <svg class="absolute w-4 h-4 text-white opacity-0 peer-checked:opacity-100 pointer-events-none transition-opacity" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3.5" d="M5 13l4 4L19 7"></path></svg>
                                             </div>
                                             <div class="min-w-0 flex-1">
-                                                <div class="font-black text-slate-900 group-hover/item:text-indigo-600 transition-colors truncate">{{ $anggota->nama }}</div>
+                                                <div class="flex items-center gap-2">
+                                                    <div class="font-black text-slate-900 group-hover/item:text-indigo-600 transition-colors truncate">{{ $anggota->nama }}</div>
+                                                    <div wire:loading wire:target="toggleAnggota('{{ $anggota->id }}'), anggota_budgets.{{ $anggota->id }}" class="shrink-0">
+                                                        <svg class="animate-spin h-3 w-3 text-indigo-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                                            <circle class="opacity-30" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                                            <path class="opacity-100" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                                        </svg>
+                                                    </div>
+                                                </div>
                                                 <div class="text-[9px] font-bold text-slate-400 uppercase tracking-widest">{{ $anggota->jabatan ?? 'Anggota' }}</div>
                                             </div>
                                         </div>
@@ -271,25 +279,9 @@
                                         let items = Array.isArray(list) ? list : Object.values(list);
                                         return items.some(item => item == id);
                                     },
-                                    toggleSelection(pid, id) {
-                                        if (!this.selections) this.selections = {};
-                                        // Ensure the sub-array exists
-                                        if (!this.selections[pid]) {
-                                             this.selections[pid] = [];
-                                        } else if (!Array.isArray(this.selections[pid])) {
-                                             // Convert object to array if needed (Livewire serialization quirk)
-                                             this.selections[pid] = Object.values(this.selections[pid]);
-                                        }
-                                        
-                                        // Helper to find index ensuring type safety
-                                        let index = this.selections[pid].findIndex(item => item == id);
-                                        
-                                        if (index === -1) {
-                                            this.selections[pid].push(id);
-                                        } else {
-                                            this.selections[pid].splice(index, 1);
-                                        }
-                                    }
+                                     toggleSelection(pid, id) {
+                                         $wire.togglePimpinanPendamping(pid, id);
+                                     }
                                 }" class="bg-white/80 backdrop-blur-xl rounded-[2.5rem] shadow-2xl shadow-slate-200/50 border border-white p-8 relative overflow-hidden group">
                                      <div class="absolute -right-10 -top-10 w-32 h-32 bg-emerald-500/5 rounded-full blur-2xl group-hover:bg-emerald-500/10 transition-colors"></div>
                                     <h3 class="relative text-[10px] font-black text-rose-500 uppercase tracking-[0.2em] mb-8 flex items-center justify-between">
@@ -372,6 +364,12 @@
                                                                 <span class="px-1.5 py-0.5 rounded-full bg-slate-100 text-[8px] font-black text-slate-400 uppercase tracking-wider">
                                                                     {{ Str::limit($targetName, 10) }}
                                                                 </span>
+                                                                 <div wire:loading wire:target="togglePimpinanPendamping('{{ $targetPid }}', '{{ $pendamping->id }}'), pendamping_budgets.{{ $pendamping->id }}" class="shrink-0">
+                                                                     <svg class="animate-spin h-3 w-3 text-rose-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                                                         <circle class="opacity-30" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                                                         <path class="opacity-100" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                                                     </svg>
+                                                                 </div>
                                                             </div>
                                                             <div class="text-[7px] font-black text-slate-400 uppercase tracking-widest">{{ $pendamping->pegawai ? $pendamping->pegawai->jabatan : ($pendamping->jabatan ?? 'Staf') }}</div>
                                                         </div>
@@ -448,11 +446,19 @@
                                         <label class="group/item flex flex-col p-4 {{ in_array($pendamping->id, $pendamping_ids) ? 'bg-emerald-50 border-emerald-100 ring-2 ring-emerald-500/5' : 'bg-slate-50/50 border-transparent hover:bg-white hover:border-emerald-100' }} rounded-2xl border transition-all duration-300 cursor-pointer">
                                             <div class="flex items-center">
                                                 <div class="relative flex items-center justify-center w-5 h-5 mr-3">
-                                                    <input type="checkbox" wire:model.live="pendamping_ids" value="{{ $pendamping->id }}" {{ $isReadOnly ? 'disabled' : '' }} class="peer relative appearance-none w-5 h-5 border-2 border-slate-200 rounded-md checked:bg-emerald-500 checked:border-emerald-500 focus:ring-0 cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed">
+                                                    <input type="checkbox" wire:click="togglePendamping('{{ $pendamping->id }}')" value="{{ $pendamping->id }}" {{ in_array($pendamping->id, $pendamping_ids) ? 'checked' : '' }} {{ $isReadOnly ? 'disabled' : '' }} class="peer relative appearance-none w-5 h-5 border-2 border-slate-200 rounded-md checked:bg-emerald-500 checked:border-emerald-500 focus:ring-0 cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed">
                                                     <svg class="absolute w-3 h-3 text-white opacity-0 peer-checked:opacity-100 pointer-events-none transition-opacity" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3.5" d="M5 13l4 4L19 7"></path></svg>
                                                 </div>
                                                 <div class="min-w-0 flex-1">
-                                                    <div class="font-bold text-slate-800 group-hover/item:text-emerald-600 transition-colors truncate text-sm">{{ $pendamping->pegawai ? $pendamping->pegawai->nama : $pendamping->nama }}</div>
+                                                    <div class="flex items-center gap-2">
+                                                        <div class="font-bold text-slate-800 group-hover/item:text-emerald-600 transition-colors truncate text-sm">{{ $pendamping->pegawai ? $pendamping->pegawai->nama : $pendamping->nama }}</div>
+                                                        <div wire:loading wire:target="togglePendamping('{{ $pendamping->id }}'), pendamping_budgets.{{ $pendamping->id }}" class="shrink-0">
+                                                            <svg class="animate-spin h-3 w-3 text-emerald-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                                                <circle class="opacity-30" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                                                <path class="opacity-100" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                                            </svg>
+                                                        </div>
+                                                    </div>
                                                     <div class="text-[8px] font-black text-slate-400 uppercase tracking-widest">{{ $pendamping->pegawai ? $pendamping->pegawai->jabatan : ($pendamping->jabatan ?? 'Staf') }}</div>
                                                 </div>
                                             </div>
@@ -509,11 +515,19 @@
                                     <label class="group/item flex flex-col p-4 {{ in_array($pegawai->id, $pegawai_ids) ? 'bg-amber-50 border-amber-100 shadow-sm ring-2 ring-amber-500/5' : 'bg-slate-50/50 border-transparent hover:bg-white hover:border-amber-100' }} rounded-2xl border transition-all duration-300 cursor-pointer">
                                         <div class="flex items-center">
                                             <div class="relative flex items-center justify-center w-4 h-4 mr-3">
-                                                <input type="checkbox" wire:model.live="pegawai_ids" value="{{ $pegawai->id }}" {{ $isReadOnly ? 'disabled' : '' }} class="peer relative appearance-none w-4 h-4 border-2 border-slate-200 rounded-md checked:bg-amber-500 checked:border-amber-500 focus:ring-0 cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed">
+                                                <input type="checkbox" wire:click="togglePegawai('{{ $pegawai->id }}')" value="{{ $pegawai->id }}" {{ in_array($pegawai->id, $pegawai_ids) ? 'checked' : '' }} {{ $isReadOnly ? 'disabled' : '' }} class="peer relative appearance-none w-4 h-4 border-2 border-slate-200 rounded-md checked:bg-amber-500 checked:border-amber-500 focus:ring-0 cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed">
                                                 <svg class="absolute w-2.5 h-2.5 text-white opacity-0 peer-checked:opacity-100 pointer-events-none transition-opacity" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3.5" d="M5 13l4 4L19 7"></path></svg>
                                             </div>
                                             <div class="min-w-0 flex-1">
-                                                <div class="font-bold text-slate-800 group-hover/item:text-amber-600 transition-colors truncate text-xs">{{ $pegawai->nama }}</div>
+                                                <div class="flex items-center gap-2">
+                                                    <div class="font-bold text-slate-800 group-hover/item:text-amber-600 transition-colors truncate text-xs">{{ $pegawai->nama }}</div>
+                                                    <div wire:loading wire:target="togglePegawai('{{ $pegawai->id }}'), pegawai_budgets.{{ $pegawai->id }}" class="shrink-0">
+                                                        <svg class="animate-spin h-3 w-3 text-amber-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                                            <circle class="opacity-30" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                                            <path class="opacity-100" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                                        </svg>
+                                                    </div>
+                                                </div>
                                                 <div class="text-[7px] font-black text-slate-400 uppercase tracking-widest">{{ $pegawai->jabatan }}</div>
                                             </div>
                                         </div>
@@ -643,17 +657,32 @@
                     </div>
 
                     <div class="flex items-center gap-4 w-full md:w-auto">
-                        @if($currentStep < 3)
-                        <button type="button" wire:click="nextStep" class="w-full md:w-auto group relative overflow-hidden bg-white text-slate-900 px-12 py-5 rounded-2xl font-black text-[11px] uppercase tracking-[0.2em] shadow-xl transition-all duration-500 hover:-translate-y-1">
-                            <div class="absolute inset-0 bg-gradient-to-r from-blue-600 to-indigo-600 opacity-0 group-hover:opacity-100 transition-all duration-500"></div>
-                            <span class="relative group-hover:text-white transition-colors duration-500">Lanjutkan Ke Tahap Berikutnya</span>
+                        <button type="button" wire:click="nextStep" wire:loading.attr="disabled" class="w-full md:w-auto group relative overflow-hidden bg-white text-slate-900 px-12 py-5 rounded-2xl font-black text-[11px] uppercase tracking-[0.2em] shadow-xl transition-all duration-500 hover:-translate-y-1">
+                            <div class="absolute inset-0 bg-gradient-to-r from-blue-600 to-indigo-600 opacity-0 group-hover:opacity-100 wire:loading.opacity-100 transition-all duration-500" wire:target="nextStep"></div>
+                            <span class="relative group-hover:text-white wire:loading.text-white transition-colors duration-500 flex items-center justify-center gap-2" wire:target="nextStep">
+                                <span wire:loading.remove wire:target="nextStep">Lanjutkan Ke Tahap Berikutnya</span>
+                                <span wire:loading wire:target="nextStep" class="flex items-center gap-2">
+                                    <svg class="animate-spin h-4 w-4 text-current" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                    </svg>
+                                    Memproses...
+                                </span>
+                            </span>
                         </button>
-                        @endif
 
                         @if($currentStep == 3 && !$isReadOnly)
                         <button type="submit" wire:loading.attr="disabled" class="w-full md:w-auto group relative overflow-hidden bg-indigo-600 text-white px-16 py-5 rounded-2xl font-black text-[11px] uppercase tracking-[0.2em] shadow-2xl transition-all duration-500 hover:bg-indigo-700 hover:-translate-y-1 active:scale-95 disabled:opacity-50">
-                            <span wire:loading.remove>Finalisasi & Simpan Data</span>
-                            <span wire:loading>Memproses...</span>
+                            <div class="flex items-center justify-center gap-2">
+                                <span wire:loading.remove wire:target="save">Finalisasi & Simpan Data</span>
+                                <span wire:loading wire:target="save" class="flex items-center gap-2">
+                                    <svg class="animate-spin h-4 w-4 text-current" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                    </svg>
+                                    Menyimpan...
+                                </span>
+                            </div>
                         </button>
                         @endif
                         
