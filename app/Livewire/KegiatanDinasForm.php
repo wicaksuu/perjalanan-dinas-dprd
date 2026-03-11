@@ -200,6 +200,11 @@ class KegiatanDinasForm extends Component
 
     public function updatedPimpinanPendampings()
     {
+        $this->syncPimpinanToPendampingIds();
+    }
+
+    private function syncPimpinanToPendampingIds()
+    {
         // Sync to main pendamping_ids for validation and storage
         $allIds = [];
         if (is_array($this->pimpinan_pendampings)) {
@@ -492,6 +497,9 @@ class KegiatanDinasForm extends Component
             unset($this->pimpinan_pendampings[$anggotaId][$index]);
             $this->pimpinan_pendampings[$anggotaId] = array_values($this->pimpinan_pendampings[$anggotaId]);
         }
+
+        // Trigger synchronization
+        $this->syncPimpinanToPendampingIds();
     }
 
     private function calculateDurasi($start, $end)
