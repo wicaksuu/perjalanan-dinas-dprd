@@ -394,6 +394,8 @@ class KegiatanDinasForm extends Component
         if (!$this->isEdit) {
              $this->anggota_ids = [];
              $this->pendamping_ids = [];
+             $this->pimpinan_pendampings = [];
+             $this->pegawai_ids = []; // Reset staff too when commission changes
         } 
         // If edit, checking if the selected ids are still valid for new komisi is complex, 
         // simplifying: If user changes Komisi manually during Edit, we probably should clear. 
@@ -404,6 +406,13 @@ class KegiatanDinasForm extends Component
 
     public function render()
     {
+        // 0. Ensure pimpinan pendampings are synced if in pimpinan mode
+        $selectedKomisi = $this->komisi_id ? Komisi::find($this->komisi_id) : null;
+        $isPimpinanMode = $selectedKomisi && strtoupper($selectedKomisi->nama) === 'PIMPINAN DPRD';
+        if ($isPimpinanMode) {
+            $this->syncPimpinanToPendampingIds();
+        }
+
         // 1. Identify Pegawai IDs that are currently selected as Pendamping
         $selectedPendampings = Pendamping::whereIn('id', $this->pendamping_ids)->get();
         // These Pegawai IDs should be excluded from the "Staf" list
